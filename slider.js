@@ -80,22 +80,29 @@
       config.grabCursor = true;
     }
 
+    // Find the parent component wrapper
+    const componentWrapper = element.closest('[data-slider="component"]');
+
     // Configure navigation if elements exist
-    const nextEl = element.querySelector('[data-slider="next"]');
-    const prevEl = element.querySelector('[data-slider="previous"]');
+    const nextEl = componentWrapper.querySelector('[data-slider="next"]');
+    const prevEl = componentWrapper.querySelector('[data-slider="previous"]');
+
     if (nextEl && prevEl) {
       config.navigation = { nextEl, prevEl };
     }
 
     // Configure pagination if element exists
-    const paginationEl = element.querySelector('[data-slider="pagination"]');
+    const paginationEl = componentWrapper.querySelector(
+      '[data-slider="pagination"]'
+    );
+
     if (paginationEl) {
       config.pagination = {
         el: paginationEl,
         clickable: true,
-        bulletElement: "div",
-        bulletClass: "pagination-bullet",
-        bulletActiveClass: "pagination-bullet-active",
+        bulletElement: "button",
+        bulletClass: "slider-pagination_button",
+        bulletActiveClass: "cc-active",
       };
     }
 
