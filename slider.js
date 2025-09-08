@@ -29,6 +29,9 @@
 
   function initializeSwiper(element, index) {
     try {
+      // Process Webflow CMS collection lists before initialization
+      processWebflowCMSLists(element);
+
       // Get configuration from data attributes
       const config = getSwiperConfig(element);
 
@@ -45,13 +48,35 @@
     }
   }
 
+  function processWebflowCMSLists(element) {
+    // Find and process Webflow CMS collection list elements
+    const webflowSelectors = [".w-dyn-list", ".w-dyn-items", ".w-dyn-item"];
+
+    webflowSelectors.forEach((selector) => {
+      const webflowElements = element.querySelectorAll(selector);
+
+      webflowElements.forEach((webflowElement) => {
+        // Get all child nodes (including text nodes and elements)
+        const children = Array.from(webflowElement.childNodes);
+
+        // Insert children before the webflow element
+        children.forEach((child) => {
+          webflowElement.parentNode.insertBefore(child, webflowElement);
+        });
+
+        // Remove the now-empty webflow wrapper element
+        webflowElement.remove();
+      });
+    });
+  }
+
   function getSwiperConfig(element) {
     // Get computed styles to read CSS variables for proper slide calculation
     const computedStyle = getComputedStyle(element);
-    const xs = parseInt(computedStyle.getPropertyValue("--xs").trim()) || 1;
-    const sm = parseInt(computedStyle.getPropertyValue("--sm").trim()) || 1;
-    const md = parseInt(computedStyle.getPropertyValue("--md").trim()) || 2;
-    const lg = parseInt(computedStyle.getPropertyValue("--lg").trim()) || 3;
+    const xs = parseFloat(computedStyle.getPropertyValue("--xs").trim()) || 1;
+    const sm = parseFloat(computedStyle.getPropertyValue("--sm").trim()) || 1;
+    const md = parseFloat(computedStyle.getPropertyValue("--md").trim()) || 2;
+    const lg = parseFloat(computedStyle.getPropertyValue("--lg").trim()) || 3;
     const spaceBetween =
       parseInt(computedStyle.getPropertyValue("--gap").trim()) || 24;
 
@@ -70,6 +95,10 @@
       allowTouchMove: true,
       keyboard: { enabled: true, onlyInViewport: true },
       a11y: { enabled: true },
+      // Better handling for decimal slidesPerView values
+      watchOverflow: true,
+      normalizeSlideIndex: false,
+      roundLengths: false,
     };
 
     // Configure grab cursor (default: true, can be disabled for clickable content)
