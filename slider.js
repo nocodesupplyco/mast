@@ -110,6 +110,12 @@
     if (element.dataset.loop === "true") {
       config.loop = true;
       config.loopFillGroupWithBlank = true;
+
+      // Configure loopAdditionalSlides if specified
+      const loopAdditionalSlides = element.dataset.loopAdditionalSlides;
+      if (loopAdditionalSlides && !isNaN(loopAdditionalSlides)) {
+        config.loopAdditionalSlides = parseInt(loopAdditionalSlides);
+      }
     }
 
     // Configure autoplay if requested
