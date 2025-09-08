@@ -27,6 +27,21 @@
     initializeSwipers();
   }
 
+  // Handle viewport resize with debouncing
+  let resizeTimeout;
+  function handleResize() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      // Use the existing reinitialize function from AttributesSwiper
+      if (window.AttributesSwiper && window.AttributesSwiper.reinitialize) {
+        window.AttributesSwiper.reinitialize();
+      }
+    }, 250); // 250ms debounce delay
+  }
+
+  // Add resize listener
+  window.addEventListener("resize", handleResize);
+
   function initializeSwiper(element, index) {
     try {
       // Process Webflow CMS collection lists before initialization
