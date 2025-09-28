@@ -55,12 +55,53 @@
 
       // Store reference for potential future access
       element.swiperInstance = swiper;
+
+      // Add height calculation and update mechanism
+      setupHeightCalculation(element, swiper);
     } catch (error) {
       // Silently handle errors in production
       if (typeof console !== "undefined" && console.error) {
         console.error("Swiper initialization failed:", error);
       }
     }
+  }
+
+  function setupHeightCalculation(element, swiper) {
+    // Function to calculate and set the proper height
+    function updateSliderHeight() {
+      const slides = element.querySelectorAll('.swiper-slide');
+      if (slides.length === 0) return;
+
+      let maxHeight = 0;
+      
+      // Calculate the maximum height among visible slides
+      slides.forEach(slide => {
+        // Reset any inline height styles to get natural height
+        slide.style.height = 'auto';
+        const slideHeight = slide.offsetHeight;
+        if (slideHeight > maxHeight) {
+          maxHeight = slideHeight;
+        }
+      });
+
+      // Set the calculated height to the swiper container
+      if (maxHeight > 0) {
+        element.style.height = maxHeight + 'px';
+      }
+    }
+
+    // Initial height calculation
+    updateSliderHeight();
+
+    // Update height on slide change (both drag and navigation)
+    swiper.on('slideChange', updateSliderHeight);
+    swiper.on('slideChangeTransitionEnd', updateSliderHeight);
+    
+    // Update height on touch end (when dragging stops)
+    swiper.on('touchEnd', updateSliderHeight);
+    
+    // Update height on resize
+    swiper.on('resize', updateSliderHeight);
   }
 
   function processWebflowCMSLists(element) {
@@ -104,7 +145,6 @@
         768: { slidesPerView: md, spaceBetween: spaceBetween },
         992: { slidesPerView: lg, spaceBetween: spaceBetween },
       },
-      autoHeight: true,
       watchSlidesProgress: true,
       simulateTouch: true,
       allowTouchMove: true,
