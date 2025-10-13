@@ -32,7 +32,7 @@
     const target = e.target;
 
     // Handle show modal buttons (buttons that immediately follow dialogs)
-    if (target.matches("dialog + button")) {
+    if (target.closest("dialog + button")) {
       e.preventDefault();
       const dialog = target.previousElementSibling;
       if (dialog && dialog.tagName === "DIALOG") {
@@ -42,7 +42,7 @@
     }
 
     // Handle close modal buttons (any button inside a dialog)
-    if (target.matches("dialog button")) {
+    if (target.closest("dialog button")) {
       e.preventDefault();
       const dialog = target.closest("dialog");
       if (dialog) {
