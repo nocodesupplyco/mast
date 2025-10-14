@@ -302,6 +302,11 @@ class VideoLibrary {
             video.pause();
             this.showPictureElement(video);
           });
+
+          // Always show poster when hover video pauses (from any source)
+          video.addEventListener("pause", () => {
+            this.showPictureElement(video);
+          });
         }
       });
     }
