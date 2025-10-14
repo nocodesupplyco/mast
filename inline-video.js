@@ -145,21 +145,23 @@ class VideoLibrary {
         const scrollInPlay =
           video.getAttribute("data-video-scroll-in-play") === "true";
         const hoverPlay = video.getAttribute("data-video-hover") === "true";
-  
-        // If it's a hover-play video, do nothing here. Its logic is handled in setupHoverPlay.
-        if (hoverPlay) {
-          return;
-        }
-  
-        if (this.prefersReducedMotion) {
+
+        // Always observe for lazy loading
+        this.videoObserver.observe(video);
+
+        if (hoverPlay && scrollInPlay) {
+          // For hover + scroll-in-play videos: lazy load and pause when in view, ready for hover
+          this.setupScrollInPlayForHover(video);
+        } else if (hoverPlay) {
+          // For hover-only videos: just lazy load, no autoplay behavior
+          // Logic handled in setupHoverPlay
+        } else if (this.prefersReducedMotion) {
           video.pause();
         } else if (scrollInPlay) {
           // For scroll-in-play videos, observe both for lazy loading and scroll trigger
-          this.videoObserver.observe(video);
           this.setupScrollInPlay(video);
         } else {
           // For regular videos, just observe for lazy loading and autoplay when loaded
-          this.videoObserver.observe(video);
           this.setupAutoplay(video);
         }
       });
@@ -263,8 +265,11 @@ class VideoLibrary {
       hoverVideos.forEach((video) => {
         const container = this.getComponentContainer(video);
         const trigger = container || video;
-  
+
         if (trigger) {
+          // Ensure poster is visible initially for hover videos
+          this.showPictureElement(video);
+          
           // Make the buttons inaccessible since hover is the primary interaction.
           if (container) {
             const playButton = container.querySelector('[data-video-playback="play"]');
@@ -351,7 +356,39 @@ class VideoLibrary {
       observer.observe(video);
       this.scrollObservers.set(video, observer);
     }
-  
+
+    /**
+     * Setup scroll-in-play functionality for hover videos (lazy load and pause when in view)
+     * @param {HTMLVideoElement} video - The video element
+     */
+    setupScrollInPlayForHover(video) {
+      const observer = new IntersectionObserver(
+        async (entries) => {
+          entries.forEach(async (entry) => {
+            if (entry.isIntersecting) {
+              try {
+                // Always lazy load the video
+                await this.lazyLoadVideo(video);
+                
+                // Pause the video so it's ready for hover play
+                video.pause();
+                // Ensure poster is visible
+                this.showPictureElement(video);
+              } catch (error) {
+                console.error(error);
+              }
+            }
+          });
+        },
+        {
+          threshold: this.options.scrollTriggerThreshold,
+        }
+      );
+
+      observer.observe(video);
+      this.scrollObservers.set(video, observer);
+    }
+
     /**
      * Handle play/pause buttons for a video
      * @param {HTMLVideoElement} video - The video element
