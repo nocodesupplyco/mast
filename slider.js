@@ -27,14 +27,22 @@
     initializeSwipers();
   }
 
-  // Handle viewport resize with debouncing
+  // Handle viewport resize with debouncing - only for width changes
   let resizeTimeout;
+  let lastWidth = window.innerWidth;
+
   function handleResize() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(() => {
-      // Use the existing reinitialize function from AttributesSwiper
-      if (window.AttributesSwiper && window.AttributesSwiper.reinitialize) {
-        window.AttributesSwiper.reinitialize();
+      const currentWidth = window.innerWidth;
+
+      // Only reinitialize if width changed (ignore iOS Safari chrome height changes)
+      if (currentWidth !== lastWidth) {
+        lastWidth = currentWidth;
+
+        if (window.AttributesSwiper && window.AttributesSwiper.reinitialize) {
+          window.AttributesSwiper.reinitialize();
+        }
       }
     }, 250); // 250ms debounce delay
   }
