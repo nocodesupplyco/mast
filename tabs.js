@@ -2,7 +2,7 @@
     'use strict';
 
     // Early exit if no tabs components exist on the page
-    const tabComponents = document.querySelectorAll('.tabs-component');
+    const tabComponents = document.querySelectorAll('[data-tabs-component]');
     if (!tabComponents.length) {
         return;
     }
@@ -11,11 +11,11 @@
      * Initialize a single tabs component
      */
     function initTabsComponent(component) {
-        const tabMenu = component.querySelector('.tabs-menu');
-        const dropdownMenu = component.querySelector('.tabs-menu_dropdown-menu');
-        const tabMenuWrapper = component.querySelector('.slot.cc-tabs-menu');
-        const tabLinks = component.querySelectorAll('.tabs-link');
-        const tabPanes = component.querySelectorAll('.tabs-pane');
+        const tabMenu = component.querySelector('[data-tabs-menu]');
+        const dropdownMenu = component.querySelector('[data-tabs-menu-dropdown-menu]');
+        const tabMenuWrapper = component.querySelector('[data-tabs-menu-wrapper]');
+        const tabLinks = component.querySelectorAll('[data-tabs-link]');
+        const tabPanes = component.querySelectorAll('[data-tabs-pane]');
 
         if (!tabMenu || !dropdownMenu || !tabMenuWrapper || !tabLinks.length || !tabPanes.length) {
             return;
@@ -27,12 +27,12 @@
 
         // State
         let currentActiveIndex = 0;
-        let dropdownToggle = tabMenu.querySelector('.tabs-menu_dropdown-toggle');
-        let dropdownText = dropdownToggle ? dropdownToggle.querySelector('.tabs-menu_dropdown-text') : null;
+        let dropdownToggle = tabMenu.querySelector('[data-tabs-menu-dropdown-toggle]');
+        let dropdownText = dropdownToggle ? dropdownToggle.querySelector('[data-tabs-menu-dropdown-text]') : null;
         let isMobileDropdown = tabMenu.getAttribute('data-tab-mobile-dropdown') === 'true';
 
         // Cache autoplay toggle button
-        let autoplayToggleButton = component.querySelector('.tabs-autoplay-toggle');
+        let autoplayToggleButton = component.querySelector('[data-tabs-autoplay-toggle]');
 
         // Autoplay state
         let autoplayEnabled = tabMenu.getAttribute('data-tabs-autoplay') === 'true';
@@ -175,8 +175,8 @@
             dropdownToggle.setAttribute('aria-expanded', 'false');
 
             // Set initial text to active tab
-            const activeLink = component.querySelector('.tabs-link[aria-selected="true"]') ||
-                              component.querySelector('.tabs-link.cc-active') ||
+            const activeLink = component.querySelector('[data-tabs-link][aria-selected="true"]') ||
+                              component.querySelector('[data-tabs-link].cc-active') ||
                               tabLinksArray[0];
             if (dropdownText && activeLink) {
                 const activeTabName = activeLink.getAttribute('data-tab-link-name');
@@ -260,7 +260,7 @@
 
             // Remove and re-add animation to restart it
             const activeLink = tabLinksArray[currentActiveIndex];
-            const progressBar = activeLink.querySelector('.tabs-autoplay-progress');
+            const progressBar = activeLink.querySelector('[data-tabs-autoplay-progress]');
 
             if (progressBar) {
                 // Use requestAnimationFrame for smoother animation restart
@@ -556,7 +556,7 @@
      */
     function initAllTabs() {
         // Re-query for tabs components in case they were added dynamically
-        const components = document.querySelectorAll('.tabs-component');
+        const components = document.querySelectorAll('[data-tabs-component]');
 
         if (!components.length) {
             return;
