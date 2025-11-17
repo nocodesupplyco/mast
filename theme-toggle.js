@@ -1,3 +1,5 @@
+// NOTE: This code is hosted directly in the Custom Code component of the Webflow cloneable project for max performance and editing of the INVERT_MODE variable definition
+
 (function () {
   // Configuration
   const INVERT_MODE = "light";
