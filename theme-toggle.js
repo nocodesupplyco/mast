@@ -1,81 +1,72 @@
-// NOTE: This code is hosted directly in the Custom Code component of the Webflow cloneable project for max performance and editing of the INVERT_MODE variable definition
-
- (function () {
-    // Configuration
-    const INVERT_MODE = "light";
-
+<!-- Mast Theme Toggle JS -->
+<script>
+  (function () {
     const docEl = document.documentElement;
-    const savedMode = localStorage.getItem("invertMode");
+    const savedTheme = localStorage.getItem("savedTheme");
+    const prefersColorScheme = window.matchMedia("(prefers-color-scheme: dark)");
 
     // Apply mode classes globally
-    function applyMode(shouldInvert) {
-      docEl.classList.toggle("u-mode-invert", shouldInvert);
-      docEl.classList.toggle("u-mode-base", !shouldInvert);
+    function applyMode(isLight) {
+      docEl.classList.toggle("u-mode-light", isLight);
+      docEl.classList.toggle("u-mode-dark", !isLight);
     }
 
     // Update label visibility for a specific toggle instance
-    function updateLabels(shouldInvert, baseLabel, invertLabel) {
-      if (baseLabel && invertLabel) {
-        baseLabel.style.display = shouldInvert ? "none" : "block";
-        invertLabel.style.display = shouldInvert ? "block" : "none";
+    function updateLabels(isLight, darkLabel, lightLabel) {
+      if (darkLabel && lightLabel) {
+        darkLabel.style.display = isLight ? "none" : "block";
+        lightLabel.style.display = isLight ? "block" : "none";
       }
     }
 
     // Determine initial mode from saved preference or OS
-    let shouldInvert;
-    if (savedMode !== null) {
-      shouldInvert = savedMode === "true";
-    } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      shouldInvert = INVERT_MODE === "light" ? !prefersDark : prefersDark;
-    }
+    let isLight = savedTheme !== null ? savedTheme === "light" : !prefersColorScheme.matches;
 
     // Apply mode immediately to prevent flash
-    applyMode(shouldInvert);
+    applyMode(isLight);
 
     // Set up checkbox toggles and OS preference listener
     window.addEventListener("DOMContentLoaded", function () {
       const checkboxes = document.querySelectorAll('[data-theme-toggle="checkbox"]');
 
+      // Cache label references for each checkbox to avoid repeated queries
+      const toggleInstances = Array.from(checkboxes).map(function (checkbox) {
+        return {
+          checkbox: checkbox,
+          darkLabel: checkbox.parentElement.querySelector('[data-theme-toggle="dark-label"]'),
+          lightLabel: checkbox.parentElement.querySelector('[data-theme-toggle="light-label"]')
+        };
+      });
+
+      // Shared function to update all toggle instances
+      function syncAllToggles(isLight) {
+        toggleInstances.forEach(function (instance) {
+          instance.checkbox.checked = isLight;
+          updateLabels(isLight, instance.darkLabel, instance.lightLabel);
+        });
+      }
+
+      // Initialize all instances
+      syncAllToggles(isLight);
+
       // Set up each toggle instance
-      checkboxes.forEach(function (checkbox) {
-        const baseLabel = checkbox.parentElement.querySelector('[data-theme-toggle="base-label"]');
-        const invertLabel = checkbox.parentElement.querySelector('[data-theme-toggle="invert-label"]');
-
-        // Initialize checkbox state and labels
-        checkbox.checked = docEl.classList.contains("u-mode-invert");
-        updateLabels(checkbox.checked, baseLabel, invertLabel);
-
-        // Handle checkbox change
-        checkbox.addEventListener("change", function () {
-          const shouldInvert = checkbox.checked;
-          applyMode(shouldInvert);
-          localStorage.setItem("invertMode", shouldInvert ? "true" : "false");
-
-          // Update all checkbox instances to stay in sync
-          checkboxes.forEach(function (cb) {
-            cb.checked = shouldInvert;
-            const cbBaseLabel = cb.parentElement.querySelector('[data-theme-toggle="base-label"]');
-            const cbInvertLabel = cb.parentElement.querySelector('[data-theme-toggle="invert-label"]');
-            updateLabels(shouldInvert, cbBaseLabel, cbInvertLabel);
-          });
+      toggleInstances.forEach(function (instance) {
+        instance.checkbox.addEventListener("change", function () {
+          isLight = instance.checkbox.checked;
+          applyMode(isLight);
+          localStorage.setItem("savedTheme", isLight ? "light" : "dark");
+          syncAllToggles(isLight);
         });
       });
 
       // Listen for OS preference changes if no saved preference
-      if (savedMode === null) {
-        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function (e) {
-          const shouldInvert = INVERT_MODE === "light" ? !e.matches : e.matches;
-          applyMode(shouldInvert);
-
-          // Update all checkbox instances
-          checkboxes.forEach(function (checkbox) {
-            checkbox.checked = shouldInvert;
-            const baseLabel = checkbox.parentElement.querySelector('[data-theme-toggle="base-label"]');
-            const invertLabel = checkbox.parentElement.querySelector('[data-theme-toggle="invert-label"]');
-            updateLabels(shouldInvert, baseLabel, invertLabel);
-          });
+      if (savedTheme === null) {
+        prefersColorScheme.addEventListener("change", function (e) {
+          isLight = !e.matches;
+          applyMode(isLight);
+          syncAllToggles(isLight);
         });
       }
     });
   })();
+</script>
