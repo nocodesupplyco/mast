@@ -44,8 +44,8 @@
       return;
     }
 
-    // Handle close modal buttons (any button inside a dialog)
-    if (target.closest("dialog button")) {
+    // Handle close modal buttons
+    if (target.closest('dialog button.modal_close-button, dialog button[data-modal="close"]')) {
       e.preventDefault();
       const dialog = target.closest("dialog");
       if (dialog) {
